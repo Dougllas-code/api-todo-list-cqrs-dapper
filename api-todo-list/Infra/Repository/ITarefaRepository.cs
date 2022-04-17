@@ -10,11 +10,11 @@ public interface ITarefaRepository
 
     public Task Create(Tarefa tarefa);
 
+    public Task<TarefaQueryResult> FindById(string id);
+
     public Task Update(Tarefa tarefa);
 
-    /*public Task<Tarefa> FindById(int id);
-
-    public Task UpdateDone(Tarefa tarefa);
+    /*public Task UpdateDone(Tarefa tarefa);
 
     public Task Delete(Tarefa tarefa);
 

@@ -16,21 +16,27 @@ public class CreateTarefaHandler
 
     public async Task<GenericCommandResult> Handle(CreateTarefaCommand command)
     {
+        #region VALIDA O COMMAND
         command.Validate();
 
         if (!command.IsValid)
         {
             return GenericCommandResult.Falha("Falha ao criar tarefa", command.Notifications);
         }
+        #endregion
 
+        #region CRIA E VALIDA A TAREFA
         Tarefa tarefa = Tarefa.Create(command);
 
         tarefa.Validate();
 
         if (!tarefa.IsValid)
             return GenericCommandResult.Falha("Falha ao criar tarefa", tarefa.Notifications);
+        #endregion
 
+        #region INSERE A TAREFA NO BANCO
         await _tarefaRepository.Create(tarefa);
         return GenericCommandResult.Sucesso("Tarefa criada com sucesso");
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using api_todo_list.Domain.Command;
+using api_todo_list.Domain.Query;
 using api_todo_list.Model;
 using api_todo_list.Repository;
 
@@ -15,21 +16,34 @@ public class UpdateTarefaHandler
 
     public async Task<GenericCommandResult> Handle(string id, UpdateTarefaCommand command)
     {
+        #region VALIDA COMMAND
         command.Validate();
 
         if (!command.IsValid)
         {
             return GenericCommandResult.Falha("Falha ao alterar tarefa", command.Notifications);
         }
+        #endregion
 
-        Tarefa tarefa = Tarefa.Update(id, command);
+        //#region VERIFICA SE TAREFA EXISTE
+        //TarefaQueryResult tarefaExiste = await _tarefaRepository.FindById(id);
 
-        tarefa.Validate();
+        //if (tarefaExiste == null)
+        //    return GenericCommandResult.Falha("Tarefa não existe");
+        //#endregion
 
-        if (!tarefa.IsValid)
-            return GenericCommandResult.Falha("Falha ao alterar tarefa", tarefa.Notifications);
+        #region CRIA E VALIDA TAREFA ATUALIZADA
+        Tarefa tarefaAtualizada = Tarefa.Update(id, command);
 
-        await _tarefaRepository.Update(tarefa);
+        tarefaAtualizada.Validate();
+
+        if (!tarefaAtualizada.IsValid)
+            return GenericCommandResult.Falha("Falha ao alterar tarefa", tarefaAtualizada.Notifications);
+        #endregion
+
+        #region SALVA TAREFA ATUALIZADA NO BANCO
+        await _tarefaRepository.Update(tarefaAtualizada);
         return GenericCommandResult.Sucesso("Tarefa alterada com sucesso");
+        #endregion
     }
 }

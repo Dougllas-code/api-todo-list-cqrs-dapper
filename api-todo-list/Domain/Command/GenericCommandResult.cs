@@ -29,4 +29,9 @@ public class GenericCommandResult: Notification
     {
         return new GenericCommandResult(false, mensagem, notificacao);
     }
+
+    public static GenericCommandResult Falha(string mensagem)
+    {
+        return new GenericCommandResult(false, mensagem);
+    }
 }

@@ -11,13 +11,16 @@ namespace api_todo_list.Controllers;
 [Route(template: "v1")]
 public class TarefaController : ControllerBase
 {
+    #region GET
     [HttpGet(template: "tarefa")]
     public async Task<IActionResult> Get([FromServices] ITarefaRepository repository)
     {
         var tarefas = await repository.GetAll();
         return Ok(tarefas);
     }
+    #endregion
 
+    #region POST
     [HttpPost(template: "tarefa")]
     public async Task<IActionResult> Create(
         [FromServices] CreateTarefaHandler createTarefaHandler, [FromBody] CreateTarefaCommand command)
@@ -29,21 +32,21 @@ public class TarefaController : ControllerBase
             if(result.Tipo == false)
                 return BadRequest(result);
 
-            return Ok(result);
+            return Ok(result.Mensagem);
         }
         catch (Exception)
         {
             return BadRequest();
         }
     }
+    #endregion
 
+    #region PUT
     [HttpPut(template: "tarefa/{id}")]
     public async Task<IActionResult> Update(
-        [FromServices] UpdateTarefaHandler updateTarefaHandler,
-        [FromBody] UpdateTarefaCommand command,
+        [FromServices] UpdateTarefaHandler updateTarefaHandler, [FromBody] UpdateTarefaCommand command,
         [FromRoute] string id)
     {
-
         try
         {
             GenericCommandResult result = await updateTarefaHandler.Handle(id, command);
@@ -51,17 +54,18 @@ public class TarefaController : ControllerBase
             if (result.Tipo == false)
                 return BadRequest(result);
 
-            return Ok(result);
+            return Ok(result.Mensagem);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return BadRequest();
+            return BadRequest(e);
         }
     }
+    #endregion
 
     /*[HttpPatch(template: "tarefa/{id}")]
     public async Task<IActionResult> UpdateDone(
-        [FromServices] AppDbContext context,
+        [FromServices] ITarefaRepository context,
         [FromRoute] int id)
     {
         var tarefa = await _tarefaReposity.FindById(context, id);

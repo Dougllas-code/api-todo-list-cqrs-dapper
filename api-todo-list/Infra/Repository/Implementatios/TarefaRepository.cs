@@ -1,5 +1,4 @@
 ﻿using api_todo_list.Data;
-using api_todo_list.Domain.Command;
 using api_todo_list.Domain.Query;
 using api_todo_list.Model;
 using Dapper;
@@ -15,50 +14,75 @@ public class TarefaRepository : ITarefaRepository
         _context = context;
     }
 
+    #region BUSCAR TODAS AS TAREFAS
     public async Task<List<TarefaQueryResult>> GetAll()
     {
-        using var connection = _context.Connection;
-
-        string query = "SELECT * FROM tarefa";
-        List<TarefaQueryResult> tarefas = (await connection.QueryAsync<TarefaQueryResult>(sql: query)).ToList();
-        return tarefas;
+        using (var connection = _context.Connection)
+        {
+            string query = "SELECT * FROM tarefa";
+            List<TarefaQueryResult> tarefas = (await connection.QueryAsync<TarefaQueryResult>(sql: query)).ToList();
+            return tarefas;
+        }
     }
+    #endregion
 
+    #region CRIAR TAREFA
     public async Task Create(Tarefa tarefa)
     {
-        using var connection = _context.Connection;
+        using (var connection = _context.Connection)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("id", tarefa.Id.ToString());
+            parametros.Add("titulo", tarefa.Titulo);
+            parametros.Add("descricao", tarefa.Descricao);
+            parametros.Add("done", tarefa.Done);
+            parametros.Add("created_at", tarefa.Created_at.ToString("s"));
 
-        string query = $"INSERT INTO tarefa(Id, Titulo, Descricao, Done, Created_at) " +
-            $"VALUES('{tarefa.Id}', '{tarefa.Titulo}', '{tarefa.Descricao}', {tarefa.Done}, '{tarefa.Created_at.ToString("s")}')";
+            string query = @"INSERT INTO tarefa(Id, Titulo, Descricao, Done, Created_at) VALUES(@id, @titulo, @descricao, @done, @created_at)";
 
-        await connection.ExecuteAsync(sql: query);
+            await connection.ExecuteAsync(sql: query, param: parametros);
+        }
     }
+    #endregion
 
+    #region BUSCAR TAREFA PELO ID
+    public async Task<TarefaQueryResult> FindById(string idTarefa)
+    {
+        using (var connection = _context.Connection)
+        {
+            string query = @"SELECT * FROM tarefa WHERE Id = @id";
+
+            var parametros = new DynamicParameters();
+            parametros.Add("id", idTarefa);
+
+            TarefaQueryResult tarefa = await connection
+                .QueryFirstOrDefaultAsync<TarefaQueryResult>(sql: query, param: parametros);
+
+            return tarefa;
+        }
+    }
+    #endregion
+
+    #region ALTERAR DADOS DA TAREFA
     public async Task Update(Tarefa tarefa)
     {
-        using var connection = _context.Connection;
+        using (var connection = _context.Connection)
+        {
+            string query = @"UPDATE tarefa SET Titulo = @titulo, Descricao = @descricao, Updated_at = @updated_at WHERE Id = @id";
 
-        string query = @"UPDATE tarefa SET Titulo = @titulo, Descricao = @descricao, Updated_at = @updated_at WHERE Id = @id";
-       
-        var parametros = new DynamicParameters();
-        parametros.Add("id", tarefa.Id.ToString());
-        parametros.Add("titulo", tarefa.Titulo);
-        parametros.Add("descricao", tarefa.Descricao);
-        parametros.Add("updated_at", tarefa.Updated_at.ToString("s"));
+            var parametros = new DynamicParameters();
+            parametros.Add("id", tarefa.Id.ToString());
+            parametros.Add("titulo", tarefa.Titulo);
+            parametros.Add("descricao", tarefa.Descricao);
+            parametros.Add("updated_at", tarefa.Updated_at.ToString("s")); // yyyy-MM-dd
 
-        await connection.ExecuteAsync(sql: query, param: parametros);
+            await connection.ExecuteAsync(sql: query, param: parametros);
+        }
+
     }
+    #endregion
 
-    /*public async Task<Tarefa> FindById(int id)
-    {
-        using var connection = _context.Connection;
-
-        string query = $"SELECT * FROM tarefa WHERE Id = {id}";
-        Tarefa tarefa = await connection.QueryFirstOrDefaultAsync<Tarefa>(sql: query);
-        return tarefa;
-    }
-
-    public async Task<Tarefa> UpdateDone(Tarefa tarefa)
+    /*public async Task<Tarefa> UpdateDone(Tarefa tarefa)
     {
         tarefa.Done = true;
 

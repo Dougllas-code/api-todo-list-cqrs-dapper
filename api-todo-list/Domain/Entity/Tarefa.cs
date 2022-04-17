@@ -1,5 +1,6 @@
 ﻿using api_todo_list.Command;
 using api_todo_list.Domain.Command;
+using api_todo_list.Domain.Query;
 using Flunt.Notifications;
 using Flunt.Validations;
 
