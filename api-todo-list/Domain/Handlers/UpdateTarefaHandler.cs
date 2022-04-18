@@ -18,32 +18,67 @@ public class UpdateTarefaHandler
     {
         #region VALIDA COMMAND
         command.Validate();
-
         if (!command.IsValid)
         {
-            return GenericCommandResult.Falha("Falha ao alterar tarefa", command.Notifications);
+            return GenericCommandResult.Falha("Falha ao atualizar tarefa", command.Notifications);
         }
         #endregion
 
-        //#region VERIFICA SE TAREFA EXISTE
-        //TarefaQueryResult tarefaExiste = await _tarefaRepository.FindById(id);
+        #region VERIFICA SE TAREFA EXISTE
+        var tarefa = await _tarefaRepository.FindById(id);
 
-        //if (tarefaExiste == null)
-        //    return GenericCommandResult.Falha("Tarefa não existe");
-        //#endregion
+        if (tarefa == null)
+            return GenericCommandResult.Falha("Tarefa não encontrada");
+        #endregion
 
         #region CRIA E VALIDA TAREFA ATUALIZADA
-        Tarefa tarefaAtualizada = Tarefa.Update(id, command);
+        var tarefaAtualizada = Tarefa.Update(tarefa, command);
 
         tarefaAtualizada.Validate();
 
         if (!tarefaAtualizada.IsValid)
-            return GenericCommandResult.Falha("Falha ao alterar tarefa", tarefaAtualizada.Notifications);
+            return GenericCommandResult.Falha("Falha ao atualizar tarefa", tarefaAtualizada.Notifications);
         #endregion
 
         #region SALVA TAREFA ATUALIZADA NO BANCO
-        await _tarefaRepository.Update(tarefaAtualizada);
-        return GenericCommandResult.Sucesso("Tarefa alterada com sucesso");
+        var result = await _tarefaRepository.Update(tarefaAtualizada);
+
+        if (result == 0)
+            return GenericCommandResult.Falha("Erro ao atualizar tarefa");
+
+        return GenericCommandResult.Sucesso("Tarefa atualizada com sucesso");
+        #endregion
+    }
+
+    public async Task<GenericCommandResult> Handle(string id)
+    {
+        #region VALIDA ID
+        if (!Guid.TryParse(id, out Guid idValido))
+            return GenericCommandResult.Falha("Id inválido");
+        #endregion
+
+        #region VERIFICA SE TAREFA EXISTE
+        var tarefa = await _tarefaRepository.FindById(id);
+
+        if (tarefa == null)
+            return GenericCommandResult.Falha("Tarefa não encontrada");
+        #endregion
+
+        #region CRIA E VALIDA TAREFA ATUALIZADA
+        var tarefaAtualizada = Tarefa.UpdateDone(tarefa);
+        tarefaAtualizada.Validate();
+
+        if (!tarefaAtualizada.IsValid)
+            return GenericCommandResult.Falha("Erro ao atualizar tarefa", tarefaAtualizada.Notifications);
+        #endregion
+
+        #region SALVA TAREFA ATUALIZADA NO BANCO
+        var result = await _tarefaRepository.UpdateDone(tarefaAtualizada);
+
+        if (result == 0)
+            return GenericCommandResult.Falha("Erro ao atualizar tarefa");
+
+        return GenericCommandResult.Sucesso("Tarefa atualizada com sucesso");
         #endregion
     }
 }

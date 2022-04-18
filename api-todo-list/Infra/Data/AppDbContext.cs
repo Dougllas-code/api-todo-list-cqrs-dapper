@@ -1,17 +1,22 @@
-﻿using MySqlConnector;
-using System.Data;
+﻿using MySql.Data.MySqlClient;
 
 namespace api_todo_list.Data;
 
-public class AppDbContext : IDisposable
+public class AppDbContext : IAsyncDisposable
 {
-    public IDbConnection Connection { get; set; }
+    public MySqlConnection Connection { get; set; }
 
     public AppDbContext(IConfiguration configuration)
     {
-        Connection = new MySqlConnection(configuration.GetConnectionString("mysqldb"));
+        Connection = new MySqlConnection(configuration.GetConnectionString("Default"));
         Connection.Open();
     }
-    public void Dispose() => Connection?.Dispose();
+
+    public async ValueTask DisposeAsync()
+    {
+        await Connection.CloseAsync();
+        await Connection.ClearAllPoolsAsync();
+        await Connection.DisposeAsync();
+    }
 
 }

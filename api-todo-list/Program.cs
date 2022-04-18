@@ -22,6 +22,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<ITarefaRepository, TarefaRepository>();
 builder.Services.AddScoped<CreateTarefaHandler>();
 builder.Services.AddScoped<UpdateTarefaHandler>();
+builder.Services.AddScoped<DeleteTarefaHandler>();
 
 builder.Services.AddScoped<AppDbContext>();
 builder.Services.AddControllers();

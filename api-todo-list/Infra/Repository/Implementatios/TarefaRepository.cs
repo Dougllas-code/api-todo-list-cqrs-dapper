@@ -38,7 +38,8 @@ public class TarefaRepository : ITarefaRepository
             parametros.Add("done", tarefa.Done);
             parametros.Add("created_at", tarefa.Created_at.ToString("s"));
 
-            string query = @"INSERT INTO tarefa(Id, Titulo, Descricao, Done, Created_at) VALUES(@id, @titulo, @descricao, @done, @created_at)";
+            string query = @"INSERT INTO tarefa(Id, Titulo, Descricao, Done, Created_at) 
+                            VALUES(@id, @titulo, @descricao, @done, @created_at)";
 
             await connection.ExecuteAsync(sql: query, param: parametros);
         }
@@ -64,11 +65,13 @@ public class TarefaRepository : ITarefaRepository
     #endregion
 
     #region ALTERAR DADOS DA TAREFA
-    public async Task Update(Tarefa tarefa)
+    public async Task<int> Update(Tarefa tarefa)
     {
         using (var connection = _context.Connection)
         {
-            string query = @"UPDATE tarefa SET Titulo = @titulo, Descricao = @descricao, Updated_at = @updated_at WHERE Id = @id";
+            string query = @"UPDATE tarefa 
+                             SET Titulo = @titulo, Descricao = @descricao, Updated_at = @updated_at 
+                             WHERE Id = @id";
 
             var parametros = new DynamicParameters();
             parametros.Add("id", tarefa.Id.ToString());
@@ -76,34 +79,64 @@ public class TarefaRepository : ITarefaRepository
             parametros.Add("descricao", tarefa.Descricao);
             parametros.Add("updated_at", tarefa.Updated_at.ToString("s")); // yyyy-MM-dd
 
-            await connection.ExecuteAsync(sql: query, param: parametros);
+            var result = await connection.ExecuteAsync(sql: query, param: parametros);
+            return result;
         }
 
     }
     #endregion
 
-    /*public async Task<Tarefa> UpdateDone(Tarefa tarefa)
+    #region ALTERA STATUS DA TAREFA PARA CONCLUÍDA
+    public async Task<int> UpdateDone(Tarefa tarefa)
     {
-        tarefa.Done = true;
+        using (var connection = _context.Connection)
+        {
+            string query = @"UPDATE tarefa 
+                             SET Done = @done, Updated_at = @updated_at 
+                             WHERE Id = @id";
 
-        context.Tarefa.Update(tarefa);
-        await context.SaveChangesAsync();
+            var parametros = new DynamicParameters();
+            parametros.Add("done", tarefa.Done);
+            parametros.Add("updated_at", tarefa.Updated_at.ToString("s")); // yyyy-MM-dd 
+            parametros.Add("id", tarefa.Id.ToString());
 
-        return tarefa;
+            var result = await connection.ExecuteAsync(sql: query, param: parametros);
+            return result;
+        }
     }
+    #endregion
 
-    public async Task Delete(Tarefa tarefa)
+    #region EXCLUIR TAREFA
+    public async Task<int> Delete(Guid id)
     {
-        context.Tarefa.Remove(tarefa);
-        await context.SaveChangesAsync();
+        using (var connection = _context.Connection)
+        {
+            string query = @"DELETE FROM tarefa WHERE Id = @id";
+
+            var parametros = new DynamicParameters();
+            parametros.Add("id", id.ToString());
+
+            var result = await connection.ExecuteAsync(sql: query, param: parametros);
+            return result;
+        }
     }
+    #endregion
 
-    public async Task<List<Tarefa>> GetByStatus(Boolean status)
+    #region BUSCAR TAREFAS POR STATUS
+    public async Task<List<TarefaQueryResult>> GetByStatus(Boolean status)
     {
-        using var connection = _context.Connection; 
+        using (var connection = _context.Connection)
+        {
+            string query = $"SELECT * FROM tarefa WHERE Done = @status";
 
-        string query = $"SELECT Id AS id, Titulo AS titulo, Descricao AS descricao, Done AS done FROM tarefa WHERE Done = {status}";
-        List<Tarefa> tarefas = (await connection.QueryAsync<Tarefa>(sql: query)).ToList();
-        return tarefas;
-    }*/
+            var parametros = new DynamicParameters();
+            parametros.Add("status", status);
+            List<TarefaQueryResult> tarefas = (await connection
+                .QueryAsync<TarefaQueryResult>(sql: query, param: parametros))
+                .ToList();
+
+            return tarefas;
+        }
+    }
+    #endregion
 }

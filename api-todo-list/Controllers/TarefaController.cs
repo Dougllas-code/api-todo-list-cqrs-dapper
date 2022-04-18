@@ -15,8 +15,15 @@ public class TarefaController : ControllerBase
     [HttpGet(template: "tarefa")]
     public async Task<IActionResult> Get([FromServices] ITarefaRepository repository)
     {
-        var tarefas = await repository.GetAll();
-        return Ok(tarefas);
+        try
+        {
+            var tarefas = await repository.GetAll();
+            return Ok(tarefas);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
     #endregion
 
@@ -27,9 +34,9 @@ public class TarefaController : ControllerBase
     {
         try
         {
-            GenericCommandResult result = await createTarefaHandler.Handle(command);
+            var result = await createTarefaHandler.Handle(command);
 
-            if(result.Tipo == false)
+            if (result.Tipo == false)
                 return BadRequest(result);
 
             return Ok(result.Mensagem);
@@ -49,7 +56,7 @@ public class TarefaController : ControllerBase
     {
         try
         {
-            GenericCommandResult result = await updateTarefaHandler.Handle(id, command);
+            var result = await updateTarefaHandler.Handle(id, command);
 
             if (result.Tipo == false)
                 return BadRequest(result);
@@ -58,55 +65,70 @@ public class TarefaController : ControllerBase
         }
         catch (Exception e)
         {
-            return BadRequest(e);
+            return BadRequest(e.Message);
         }
     }
     #endregion
 
-    /*[HttpPatch(template: "tarefa/{id}")]
+    #region PATCH
+    [HttpPatch(template: "tarefa/{id}")]
     public async Task<IActionResult> UpdateDone(
-        [FromServices] ITarefaRepository context,
-        [FromRoute] int id)
+        [FromServices] UpdateTarefaHandler updateTarefaHandler,
+        [FromRoute] string id)
     {
-        var tarefa = await _tarefaReposity.FindById(context, id);
-
-        if (tarefa == null)
-            return NotFound();
-
         try
         {
-            var tarefaAtualizada = await _tarefaReposity.UpdateDone(context, tarefa);
-            return Ok(tarefaAtualizada);
+            var result = await updateTarefaHandler.Handle(id);
+
+            if (result.Tipo == false)
+                return BadRequest(result.Mensagem);
+
+            return Ok(result.Mensagem);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return BadRequest();
+            return BadRequest(e.Message);
         }
     }
+    #endregion
 
+    #region DELETE
     [HttpDelete(template: "tarefa/{id}")]
-    public async Task<IActionResult> Delete([FromServices] AppDbContext context, [FromRoute] int id)
+    public async Task<IActionResult> Delete(
+        [FromServices] DeleteTarefaHandler deleteTarefaHandler,
+        [FromRoute] string id)
     {
-        var tarefa = await _tarefaReposity.FindById(context, id);
-
-        if (tarefa == null)
-            return NotFound();
-
         try
         {
-            await _tarefaReposity.Delete(context, tarefa);
-            return Ok();
+            var result = await deleteTarefaHandler.Handle(id);
+
+            if (result.Tipo == false)
+                return BadRequest(result.Mensagem);
+
+            return Ok(result.Mensagem);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return BadRequest();
+            return BadRequest(e.Message);
         }
     }
+    #endregion
 
+    #region GET BY STATUS
     [HttpGet(template: "tarefa/{status}")]
-    public async Task<IActionResult> GetBYStatus([FromRoute] Boolean status)
+    public async Task<IActionResult> GetBYStatus(
+        [FromServices] ITarefaRepository tarefaRepository,
+        [FromRoute] Boolean status)
     {
-        var tarefas = await _tarefaReposity.GetByStatus(status);
-        return Ok(tarefas);
-    }*/
+        try
+        {
+            var tarefas = await tarefaRepository.GetByStatus(status);
+            return Ok(tarefas);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    #endregion
 }

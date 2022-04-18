@@ -24,13 +24,24 @@ public class Tarefa : Notifiable<Notification>
         Created_at = DateTime.Now;
     }
 
-    public Tarefa(string id, string titulo, string descricao, DateTime updated_at)
+    public Tarefa(TarefaQueryResult tarefa, UpdateTarefaCommand command)
     {
-        Id = Guid.Parse(id);
-        Titulo = titulo;
-        Descricao = descricao;
-        Done = false;
-        Updated_at = updated_at;
+        Id = Guid.Parse(tarefa.Id);
+        Titulo = command.Titulo;
+        Descricao = command.Descricao;
+        Done = tarefa.Done;
+        Created_at = tarefa.Created_at;
+        Updated_at = command.Updated_at;
+    }
+
+    public Tarefa(TarefaQueryResult tarefa)
+    {
+        Id = Guid.Parse(tarefa.Id);
+        Titulo = tarefa.Titulo;
+        Descricao = tarefa.Descricao;
+        Done = true;
+        Created_at = tarefa.Created_at;
+        Updated_at = DateTime.Now;
     }
 
     public static Tarefa Create(CreateTarefaCommand command)
@@ -38,9 +49,14 @@ public class Tarefa : Notifiable<Notification>
         return new Tarefa(command.Titulo, command.Descricao);
     }
 
-    public static Tarefa Update(string id, UpdateTarefaCommand command)
+    public static Tarefa Update(TarefaQueryResult tarefa, UpdateTarefaCommand command)
     {
-        return new Tarefa(id, command.Titulo, command.Descricao, command.Updated_at);
+        return new Tarefa(tarefa, command);
+    }
+
+    public static Tarefa UpdateDone(TarefaQueryResult tarefa)
+    {
+        return new Tarefa(tarefa);
     }
 
     public void Validate()
