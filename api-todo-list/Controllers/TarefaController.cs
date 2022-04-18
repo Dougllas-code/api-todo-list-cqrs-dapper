@@ -39,7 +39,7 @@ public class TarefaController : ControllerBase
             if (result.Tipo == false)
                 return BadRequest(result);
 
-            return Ok(result.Mensagem);
+            return Ok(result);
         }
         catch (Exception)
         {
@@ -61,7 +61,7 @@ public class TarefaController : ControllerBase
             if (result.Tipo == false)
                 return BadRequest(result);
 
-            return Ok(result.Mensagem);
+            return Ok(result);
         }
         catch (Exception e)
         {
@@ -81,9 +81,9 @@ public class TarefaController : ControllerBase
             var result = await updateTarefaHandler.Handle(id);
 
             if (result.Tipo == false)
-                return BadRequest(result.Mensagem);
+                return BadRequest(result);
 
-            return Ok(result.Mensagem);
+            return Ok(result);
         }
         catch (Exception e)
         {
@@ -103,9 +103,9 @@ public class TarefaController : ControllerBase
             var result = await deleteTarefaHandler.Handle(id);
 
             if (result.Tipo == false)
-                return BadRequest(result.Mensagem);
+                return BadRequest(result);
 
-            return Ok(result.Mensagem);
+            return Ok(result);
         }
         catch (Exception e)
         {

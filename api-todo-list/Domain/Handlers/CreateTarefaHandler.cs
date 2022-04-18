@@ -26,7 +26,7 @@ public class CreateTarefaHandler
         #endregion
 
         #region CRIA E VALIDA A TAREFA
-        Tarefa tarefa = Tarefa.Create(command);
+        var tarefa = Tarefa.Create(command);
 
         tarefa.Validate();
 
