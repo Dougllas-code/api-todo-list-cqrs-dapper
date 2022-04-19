@@ -1,5 +1,4 @@
 ﻿using api_todo_list.Domain.Command;
-using api_todo_list.Domain.Query;
 using api_todo_list.Model;
 using api_todo_list.Repository;
 
