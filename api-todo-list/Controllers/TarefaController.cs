@@ -51,8 +51,7 @@ public class TarefaController : ControllerBase
     #region PUT
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(
-        [FromServices] UpdateTarefaHandler updateTarefaHandler, [FromBody] UpdateTarefaCommand command,
-        [FromRoute] Guid id)
+        [FromServices] UpdateTarefaHandler updateTarefaHandler, [FromBody] UpdateTarefaCommand command)
     {
         try
         {
