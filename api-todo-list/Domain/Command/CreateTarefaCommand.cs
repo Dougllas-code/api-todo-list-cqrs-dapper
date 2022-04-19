@@ -5,14 +5,8 @@ namespace api_todo_list.Command;
 
 public class CreateTarefaCommand: Notifiable<Notification>
 {
-    public string Titulo { get; private set; }
-    public string Descricao { get; private set; }
-
-    public CreateTarefaCommand(string titulo, string descricao)
-    {
-        Titulo = titulo;
-        Descricao = descricao;
-    }
+    public string Titulo { get; set; }
+    public string Descricao { get; set; }
 
     public void Validate()
     {

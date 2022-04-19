@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace api_todo_list.Controllers;
 
 [ApiController]
-[Route(template: "v1")]
+[Route("v1/tarefas")]
 public class TarefaController : ControllerBase
 {
     #region GET
-    [HttpGet(template: "tarefa")]
+    [HttpGet]
     public async Task<IActionResult> Get([FromServices] ITarefaRepository repository)
     {
         try
@@ -28,7 +28,7 @@ public class TarefaController : ControllerBase
     #endregion
 
     #region POST
-    [HttpPost(template: "tarefa")]
+    [HttpPost]
     public async Task<IActionResult> Create(
         [FromServices] CreateTarefaHandler createTarefaHandler, [FromBody] CreateTarefaCommand command)
     {
@@ -36,7 +36,7 @@ public class TarefaController : ControllerBase
         {
             var result = await createTarefaHandler.Handle(command);
 
-            if (result.Tipo == false)
+            if (result.Tipo == TipoMensagem.Erro)
                 return BadRequest(result);
 
             return Ok(result);
@@ -49,16 +49,19 @@ public class TarefaController : ControllerBase
     #endregion
 
     #region PUT
-    [HttpPut(template: "tarefa/{id}")]
+    [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(
         [FromServices] UpdateTarefaHandler updateTarefaHandler, [FromBody] UpdateTarefaCommand command,
-        [FromRoute] string id)
+        [FromRoute] Guid id)
     {
         try
         {
-            var result = await updateTarefaHandler.Handle(id, command);
+            var result = await updateTarefaHandler.Handle(command);
 
-            if (result.Tipo == false)
+            if (result.Tipo == TipoMensagem.NotFound)
+                return NotFound(result);
+
+            if (result.Tipo == TipoMensagem.Erro)
                 return BadRequest(result);
 
             return Ok(result);
@@ -71,16 +74,19 @@ public class TarefaController : ControllerBase
     #endregion
 
     #region PATCH
-    [HttpPatch(template: "tarefa/{id}")]
+    [HttpPatch("{id:guid}")]
     public async Task<IActionResult> UpdateDone(
         [FromServices] UpdateTarefaHandler updateTarefaHandler,
-        [FromRoute] string id)
+        [FromRoute] Guid id)
     {
         try
         {
             var result = await updateTarefaHandler.Handle(id);
 
-            if (result.Tipo == false)
+            if (result.Tipo == TipoMensagem.NotFound)
+                return NotFound(result);
+
+            if (result.Tipo == TipoMensagem.Erro)
                 return BadRequest(result);
 
             return Ok(result);
@@ -93,16 +99,19 @@ public class TarefaController : ControllerBase
     #endregion
 
     #region DELETE
-    [HttpDelete(template: "tarefa/{id}")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(
         [FromServices] DeleteTarefaHandler deleteTarefaHandler,
-        [FromRoute] string id)
+        [FromRoute] Guid id)
     {
         try
         {
             var result = await deleteTarefaHandler.Handle(id);
 
-            if (result.Tipo == false)
+            if(result.Tipo == TipoMensagem.NotFound)
+                return NotFound(result);
+    
+            if (result.Tipo == TipoMensagem.Erro)
                 return BadRequest(result);
 
             return Ok(result);
@@ -115,7 +124,7 @@ public class TarefaController : ControllerBase
     #endregion
 
     #region GET BY STATUS
-    [HttpGet(template: "tarefa/{status}")]
+    [HttpGet("{status}")]
     public async Task<IActionResult> GetBYStatus(
         [FromServices] ITarefaRepository tarefaRepository,
         [FromRoute] Boolean status)

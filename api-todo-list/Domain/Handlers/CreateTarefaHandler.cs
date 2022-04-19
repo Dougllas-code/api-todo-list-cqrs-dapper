@@ -21,17 +21,15 @@ public class CreateTarefaHandler
 
         if (!command.IsValid)
         {
-            return GenericCommandResult.Falha("Falha ao criar tarefa", command.Notifications);
+            return GenericCommandResult.Erro("Erro ao criar tarefa", command.Notifications);
         }
         #endregion
 
         #region CRIA E VALIDA A TAREFA
         var tarefa = Tarefa.Create(command);
 
-        tarefa.Validate();
-
         if (!tarefa.IsValid)
-            return GenericCommandResult.Falha("Falha ao criar tarefa", tarefa.Notifications);
+            return GenericCommandResult.Erro("Falha ao criar tarefa", tarefa.Notifications);
         #endregion
 
         #region INSERE A TAREFA NO BANCO

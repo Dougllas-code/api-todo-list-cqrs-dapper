@@ -5,15 +5,14 @@ namespace api_todo_list.Domain.Command;
 
 public class UpdateTarefaCommand: Notifiable<Notification>
 {
-    public string Titulo { get; private set; }
-    public string Descricao { get; private set; }
+    public Guid Id { get; set; }
+    public string Titulo { get; set; }
+    public string Descricao { get; set; }
     public DateTime Updated_at { get; private set; }
 
-    public UpdateTarefaCommand(string titulo, string descricao)
+    public UpdateTarefaCommand()
     {
-        Titulo = titulo;    
-        Descricao = descricao;  
-        Updated_at = DateTime.Now;  
+        Updated_at = DateTime.Now;
     }
 
     public void Validate()

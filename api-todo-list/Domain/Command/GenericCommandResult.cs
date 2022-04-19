@@ -4,16 +4,16 @@ namespace api_todo_list.Domain.Command;
 
 public class GenericCommandResult: Notification
 {
-    public Boolean Tipo { get; private set; }
+    public TipoMensagem Tipo { get; private set; }
     public string Mensagem { get; private set; }
     public IReadOnlyCollection<Notification> Notificacao { get; private set; }
 
-    private GenericCommandResult(Boolean tipo, string mensagem)
+    private GenericCommandResult(TipoMensagem tipo, string mensagem)
     {
         Tipo = tipo;
         Mensagem = mensagem;
     }
-    private GenericCommandResult(Boolean tipo, string mensagem, IReadOnlyCollection<Notification> notificacao)
+    private GenericCommandResult(TipoMensagem tipo, string mensagem, IReadOnlyCollection<Notification> notificacao)
     {
         Tipo = tipo;
         Mensagem = mensagem;    
@@ -22,16 +22,28 @@ public class GenericCommandResult: Notification
 
     public static GenericCommandResult Sucesso(string mensagem)
     {
-        return new GenericCommandResult(true, mensagem);
+        return new GenericCommandResult(TipoMensagem.Sucesso, mensagem);
     }
 
-    public static GenericCommandResult Falha(string mensagem, IReadOnlyCollection<Notification> notificacao)
+    public static GenericCommandResult Erro(string mensagem, IReadOnlyCollection<Notification> notificacao)
     {
-        return new GenericCommandResult(false, mensagem, notificacao);
+        return new GenericCommandResult(TipoMensagem.Erro, mensagem, notificacao);
     }
 
-    public static GenericCommandResult Falha(string mensagem)
+    public static GenericCommandResult Erro(string mensagem)
     {
-        return new GenericCommandResult(false, mensagem);
+        return new GenericCommandResult(TipoMensagem.Erro, mensagem);
     }
+
+    public static GenericCommandResult NotFound(string mensagem)
+    {
+        return new GenericCommandResult(TipoMensagem.NotFound, mensagem);
+    }
+}
+
+public enum TipoMensagem
+{
+    Sucesso,
+    Erro,
+    NotFound
 }

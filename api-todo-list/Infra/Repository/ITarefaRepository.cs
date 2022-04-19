@@ -9,7 +9,7 @@ public interface ITarefaRepository
 
     public Task Create(Tarefa tarefa);
 
-    public Task<TarefaQueryResult> FindById(string id);
+    public Task<TarefaQueryResult> FindById(Guid id);
 
     public Task<int> Update(Tarefa tarefa);
 

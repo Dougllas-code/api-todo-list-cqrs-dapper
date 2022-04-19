@@ -5,25 +5,27 @@ namespace api_todo_list.Domain.Handlers;
 
 public class DeleteTarefaHandler
 {
-    private readonly ITarefaRepository _repository;
+    private readonly ITarefaRepository _tarefaRepository;
 
-    public DeleteTarefaHandler(ITarefaRepository repository)
+    public DeleteTarefaHandler(ITarefaRepository tarefaRepository)
     {
-        _repository = repository;
+        _tarefaRepository = tarefaRepository;
     }
 
-    public async Task<GenericCommandResult> Handle(string id)
+    public async Task<GenericCommandResult> Handle(Guid id)
     {
-        #region VALIDA ID
-        if (!Guid.TryParse(id, out Guid idValido))
-            return GenericCommandResult.Falha("Id inválido");
+        #region VERIFICA SE TAREFA EXISTE
+        var tarefa = await _tarefaRepository.FindById(id);
+
+        if (tarefa == null)
+            return GenericCommandResult.NotFound("Tarefa não encontrada");
         #endregion
 
         #region EXCLUI TAREFA NO BANCO DE DADOS
-        var result = await _repository.Delete(idValido);
+        var result = await _tarefaRepository.Delete(id);
 
         if (result == 0)
-            return GenericCommandResult.Falha("Erro ao deletar tarefa");
+            return GenericCommandResult.Erro("Erro ao excluir tarefa");
 
         return GenericCommandResult.Sucesso("Tarefa excluída com sucesso");
         #endregion

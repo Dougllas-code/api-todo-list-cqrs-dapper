@@ -8,55 +8,61 @@ namespace api_todo_list.Model;
 
 public class Tarefa : Notifiable<Notification>
 {
-    public Guid Id { get; set; }
-    public string Titulo { get; set; }
-    public string Descricao { get; set; }
-    public Boolean Done { get; set; }
-    public DateTime Created_at { get; set; }
-    public DateTime Updated_at { get; set; }
-
-    public Tarefa(string titulo, string descricao)
-    {
-        Id = Guid.NewGuid();
-        Titulo = titulo;
-        Descricao = descricao;
-        Done = false;
-        Created_at = DateTime.Now;
-    }
-
-    public Tarefa(TarefaQueryResult tarefa, UpdateTarefaCommand command)
-    {
-        Id = Guid.Parse(tarefa.Id);
-        Titulo = command.Titulo;
-        Descricao = command.Descricao;
-        Done = tarefa.Done;
-        Created_at = tarefa.Created_at;
-        Updated_at = command.Updated_at;
-    }
-
-    public Tarefa(TarefaQueryResult tarefa)
-    {
-        Id = Guid.Parse(tarefa.Id);
-        Titulo = tarefa.Titulo;
-        Descricao = tarefa.Descricao;
-        Done = true;
-        Created_at = tarefa.Created_at;
-        Updated_at = DateTime.Now;
-    }
+    public Guid Id { get; private set; }
+    public string Titulo { get; private set; }
+    public string Descricao { get; private set; }
+    public Boolean Done { get; private set; }
+    public DateTime Created_at { get; private set; }
+    public DateTime Updated_at { get; private set; }
 
     public static Tarefa Create(CreateTarefaCommand command)
     {
-        return new Tarefa(command.Titulo, command.Descricao);
+        var tarefa = new Tarefa
+        {
+            Id = Guid.NewGuid(),
+            Titulo = command.Titulo,
+            Descricao = command.Descricao,
+            Done = false,
+            Created_at = DateTime.Now
+        };
+
+        tarefa.Validate();
+
+        return tarefa;
     }
 
-    public static Tarefa Update(TarefaQueryResult tarefa, UpdateTarefaCommand command)
+    public static Tarefa Update(TarefaQueryResult queryTarefa, UpdateTarefaCommand command)
     {
-        return new Tarefa(tarefa, command);
+        var tarefa = new Tarefa
+        {
+            Id = Guid.Parse(queryTarefa.Id),
+            Titulo = command.Titulo,
+            Descricao = command.Descricao,
+            Done = false,
+            Created_at = queryTarefa.Created_at,
+            Updated_at = DateTime.Now
+        };
+
+        tarefa.Validate();
+
+        return tarefa;
     }
 
-    public static Tarefa UpdateDone(TarefaQueryResult tarefa)
+    public static Tarefa UpdateDone(TarefaQueryResult queryTarefa)
     {
-        return new Tarefa(tarefa);
+        var tarefa = new Tarefa
+        {
+            Id = Guid.Parse(queryTarefa.Id),
+            Titulo = queryTarefa.Titulo,
+            Descricao = queryTarefa.Descricao,
+            Done = true,
+            Created_at = queryTarefa.Created_at,
+            Updated_at = DateTime.Now
+        };
+
+        tarefa.Validate();
+
+        return tarefa;
     }
 
     public void Validate()

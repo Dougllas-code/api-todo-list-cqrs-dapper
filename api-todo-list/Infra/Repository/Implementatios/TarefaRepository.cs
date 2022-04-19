@@ -29,32 +29,32 @@ public class TarefaRepository : ITarefaRepository
     #region CRIAR TAREFA
     public async Task Create(Tarefa tarefa)
     {
-        using (var connection = _context.Connection)
-        {
-            var parametros = new DynamicParameters();
-            parametros.Add("id", tarefa.Id.ToString());
-            parametros.Add("titulo", tarefa.Titulo);
-            parametros.Add("descricao", tarefa.Descricao);
-            parametros.Add("done", tarefa.Done);
-            parametros.Add("created_at", tarefa.Created_at.ToString("s"));
+        var parametros = new DynamicParameters();
+        parametros.Add("id", tarefa.Id.ToString());
+        parametros.Add("titulo", tarefa.Titulo);
+        parametros.Add("descricao", tarefa.Descricao);
+        parametros.Add("done", tarefa.Done);
+        parametros.Add("created_at", tarefa.Created_at.ToString("s"));
 
-            string query = @"INSERT INTO tarefa(Id, Titulo, Descricao, Done, Created_at) 
+        string query = @"INSERT INTO tarefa(Id, Titulo, Descricao, Done, Created_at) 
                             VALUES(@id, @titulo, @descricao, @done, @created_at)";
 
+        using (var connection = _context.Connection)
+        {
             await connection.ExecuteAsync(sql: query, param: parametros);
         }
     }
     #endregion
 
     #region BUSCAR TAREFA PELO ID
-    public async Task<TarefaQueryResult> FindById(string idTarefa)
+    public async Task<TarefaQueryResult> FindById(Guid id)
     {
         using (var connection = _context.Connection)
         {
             string query = @"SELECT * FROM tarefa WHERE Id = @id";
 
             var parametros = new DynamicParameters();
-            parametros.Add("id", idTarefa);
+            parametros.Add("id", id.ToString());
 
             TarefaQueryResult tarefa = await connection
                 .QueryFirstOrDefaultAsync<TarefaQueryResult>(sql: query, param: parametros);
